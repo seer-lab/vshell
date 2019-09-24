@@ -2,6 +2,10 @@
   "name": "botkit-vshell",
   "version": "0.0.0",
   "description": "A Slack chat bot for student advising at Ontario Tech University.",
+  "author": {
+    "name": "Nadia Goralski",
+    "email": "nadia.goralski@uoit.net"
+  },
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
