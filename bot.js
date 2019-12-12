@@ -46,10 +46,8 @@ adapter.use(new SlackMessageTypeMiddleware());
 
 const controller = new Botkit({
     webhook_uri: '/api/messages',
-
     adapter: adapter,
-
-    storage
+    storage: null
 });
 
 if (process.env.cms_uri) {
