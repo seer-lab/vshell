@@ -22,19 +22,6 @@ module.exports = async function trainnlp(manager, classifier) {
     connection.connect();
     faqs = await getFAQs();
     dates = await importantDates();
-    // getFAQs().then(function(rows) {
-    //     if (rows && rows.length > 0) {
-    //         faqs = rows.filter(faq => faq != null);
-    //     }
-    //     debug(".")
-    // }).catch((err) => setImmediate(() => { throw err; }));
-
-    // importantDates().then(function(rows) {
-    //     if (rows && rows.length > 0) {
-    //         dates = rows.filter(faq => faq != null);
-    //     }
-    //     debug("..")
-    // }).catch((err) => setImmediate(() => { throw err; }));
 
     debug("classifier null " + (classifier == null));
     classifier = classifier == null ? new  BayesNLU({ language: 'en' }) : classifier;
@@ -50,18 +37,6 @@ module.exports = async function trainnlp(manager, classifier) {
         classifier.add(f.question, key);
         classifier.add(tokens, key);
     });
-
-    // manager.addDocument('en', 'book appointment', 'appointment.book');
-    // manager.addDocument('en', 'make appointment', 'appointment.book');
-    // manager.addDocument('en', 'schedule appointment', 'appointment.book');
-    // manager.addDocument('en', 'book Shelly', 'appointment.book');
-    //
-    // manager.addDocument('en', 'Where is Shelly\'s office', 'appointment.location');
-    // manager.addDocument('en', 'Shelly\'s office', 'appointment.location');
-    // manager.addDocument('en', 'advisor office', 'appointment.location');
-    //
-    // manager.addAnswer('en', 'appointment.book', 'You can book an appointment online at https://shellywindsor1.youcanbook.me/');
-    // manager.addAnswer('en', 'appointment.location', 'Shelly\'s office is UA 4013');
 
     await classifier.train();
 
