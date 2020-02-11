@@ -10,13 +10,12 @@ require('dotenv').config();
 require("../resources/logger")();
 
 
-const { BayesNLU, NlpManager } = require('node-nlp');
-
-const manager = new NlpManager({ languages: ['en'], nlu: { log: true }});
-const classifier = new BayesNLU({ language: 'en' });
+//const { BayesNLU, NlpManager } = require('node-nlp');
+const { NlpManager } = require('node-nlp');
+const manager = new NlpManager({ languages: ['en'], nlu: { log: false }});
+//const classifier = new BayesNLU({ language: 'en' });
 
 const trainnlp = require('./train');
-
 
 const threshold = 0.25;
 
@@ -35,7 +34,8 @@ const init = async () => {
     );
     debug("DEBUG MODE ENABLED");
 
-    await trainnlp(manager, classifier);
+    //await trainnlp(manager, classifier);
+    trainnlp(manager);
     await run();
 };
 
@@ -73,15 +73,16 @@ const exit = (code) => {
 };
 
 const findAnswer = async (line) => {
-    let tokens = sw.removeStopwords(line.toLowerCase().split(' '));
+        let tokens = sw.removeStopwords(line.split(' '));
 
-    debug('tokens: ' + tokens.join(' '));
+        debug('tokens: ' + tokens.join(' '));
 
-    const result = await manager.process(tokens.join(' '));
-    debug('score: ' + result.score);
-    //debug(result);
-    debug(classifier.getClassifications(line));
-    return result;
+        const exactResult = await manager.process(line);
+        const result = await manager.process(tokens.join(' '));
+
+        debug('score: ' + result.score);
+
+    return [exactResult, result];
 };
 
 
@@ -99,25 +100,41 @@ const run = async () => {
         exit(0);
     }
 
-    const result = await findAnswer(input);
+    const results = await findAnswer(input);
+    const exact = results[0];
+    const result = results[1];
 
     let out = "notfound";
-    if ((result.score >= threshold) && result.answer) {
+    if ((exact.score >= threshold && exact.answer) && (result.score >= threshold && result.answer)) {
+        if (exact.sentiment.vote !== 'neutral' && result.sentiment.vote !== 'neutral') {
+            out = exact.score >= result.score ? exact.answer : result.answer
+        } else if (exact.sentiment.vote !== 'neutral') {
+            out = exact.answer;
+        } else {
+            out = result.answer;
+        }
+    }
+    else if ((exact.score >= threshold) && exact.answer) {
+        out = exact.answer
+    } else if ((result.score >= threshold) && result.answer) {
         out = result.answer
     }
+
+    debug("exactRes.an="+ exact.answer);
+    debug("result.an="+ result.answer);
+
     say(`vshell> ${out}`);
 
-    if (result.answer && result.sentiment.vote === 'neutral') {
-        answers = await askQuestions(1);
-        let {CONFIRM} = answers;
-
-        if (CONFIRM) {
-            debug('addDocument');
-            manager.addDocument('en', input, result.intent);
-            manager.save('./model.nlp', true);
-        }
-
-    }
+    // if (result.answer && result.sentiment.vote === 'neutral') {
+    //     answers = await askQuestions(1);
+    //     let {CONFIRM} = answers;
+    //
+    //     if (CONFIRM) {
+    //         debug('addDocument');
+    //         manager.addDocument('en', input, result.intent);
+    //         manager.save('./model.nlp', true);
+    //     }
+    // }
     if (result.sentiment){
         debug(`      > ${result.sentiment.vote}   (${result.sentiment.score})`);
     }

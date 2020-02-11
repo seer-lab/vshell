@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "chalk": "latest",
+    "dateformat": "^3.0.3",
     "figlet": "^1.2.4",
     "inquirer": "latest",
     "shelljs": "^0.8.3"
