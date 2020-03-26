@@ -11,8 +11,14 @@ const { BotkitCMSHelper } = require('botkit-plugin-cms');
 
 const { SlackAdapter, SlackMessageTypeMiddleware, SlackEventMiddleware } = require('botbuilder-adapter-slack');
 
+// Import NlpManager
+const { NlpManager } = require('node-nlp');
+
 // Load process.env values from .env file
 require('dotenv').config();
+
+const manager = new NlpManager({languages: ['en'], nlu: {log: false}});
+const trainnlp = require('./handlers/train');
 
 let storage = null;
 
@@ -56,6 +62,8 @@ if (process.env.cms_uri) {
         token: process.env.cms_token,
     }));
 }
+/* trainer for NLP */
+trainnlp(manager);
 
 // Once the bot has booted up its internal services, you can use them to do stuff.
 controller.ready(() => {
@@ -77,11 +85,9 @@ controller.ready(() => {
 
 });
 
-
 controller.webserver.get('/', (req, res) => {
     res.send(`This app is running Botkit ${ controller.version }.`);
 });
-
 
 controller.webserver.get('/install', (req, res) => {
     // getInstallLink points to slack's oauth endpoint and includes clientId and scopes
@@ -144,3 +150,4 @@ async function getBotUserByTeam(teamId) {
     }
 }
 
+exports.manager = manager;
