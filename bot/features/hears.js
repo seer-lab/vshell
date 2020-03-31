@@ -3,10 +3,11 @@
  * Licensed under the MIT License.
  */
 
-
+const bot =require('../bot');
+const manager = bot.manager;
 const NaturalAnswerHandler = require('../handlers/naturalAnswer');
 
-module.exports = function(controller, manager) {
+module.exports = function(controller) {
 
     controller.hears(  ['hello', 'hi', 'greetings', 'hey'],
         ['direct_mention', 'mention', 'direct_message'],

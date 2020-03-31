@@ -68,11 +68,31 @@ app.get('/', function (req, res) {
     res.render('index');
 });
 
-app.post('/upload', upload.single('date_upload'), function (req, res) {
+app.post('/uploadCourses', upload.single('course_upload'), function (req, res) {
     let fileRows = [];
     if (req.file) {
-        console.log('file!!!!!' + req.file);
+        csv.parseFile(req.file.path)
+            .on('error', error => console.error(error))
+            .on('data', data => fileRows.push(data))
+            .on('end', function () {
+                try {
+                    updateCourses(fileRows)
+                } catch (e) {
+                    console.log(e)
+                }
 
+                fs.unlinkSync(req.file.path);   // remove temp file
+                res.redirect('/')
+            });
+    } else {
+        console.log("No file selected");
+        res.redirect('/')
+    }
+});
+
+app.post('/uploadDates', upload.single('date_upload'), function (req, res) {
+    let fileRows = [];
+    if (req.file) {
         csv.parseFile(req.file.path)
             .on('error', error => console.error(error))
             .on('data', data => fileRows.push(data))
@@ -92,13 +112,56 @@ app.post('/upload', upload.single('date_upload'), function (req, res) {
     }
 });
 
+app.post('/uploadFAQs', upload.single('faq_upload'), function (req, res) {
+    let fileRows = [];
+    if (req.file) {
+        csv.parseFile(req.file.path)
+            .on('error', error => console.error(error))
+            .on('data', data => fileRows.push(data))
+            .on('end', function () {
+                try {
+                    updateFAQs(fileRows)
+                } catch (e) {
+                    console.log(e)
+                }
+
+                fs.unlinkSync(req.file.path);   // remove temp file
+                res.redirect('/')
+            });
+    } else {
+        console.log("No file selected");
+        res.redirect('/')
+    }
+});
+
+
 app.listen(port, function () {
     console.log(`Server listening on ${port}`);
 });
 
+function updateCourses(postData) {
+    let options = {
+        uri: `${process.env.HOST}/updateCourseInformation`,
+        body: JSON.stringify(postData),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    request(options, function (error, response) {
+        if (response) {
+            console.log(error, response.body);
+        }
+        console.log(error);
+        return error;
+    });
+
+    return true;
+}
+
+
 function updateDates(postData) {
-    console.log(`ghost: ${process.env.HOST}`);
-    console.log(JSON.stringify(postData));
     let options = {
         uri: `${process.env.HOST}/updateImportantDates`,
         body: JSON.stringify(postData),
@@ -119,6 +182,26 @@ function updateDates(postData) {
     return true;
 }
 
+function updateFAQs(postData) {
+    let options = {
+        uri: `${process.env.HOST}/addFAQs`,
+        body: JSON.stringify(postData),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    request(options, function (error, response) {
+        if (response) {
+            console.log(error, response.body);
+        }
+        console.log(error);
+        return error;
+    });
+
+    return true;
+}
 
 async function getActiveDates() {
     return new Promise(function(resolve, reject) {

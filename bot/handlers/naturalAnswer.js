@@ -1,19 +1,11 @@
-
 const df = require('dateformat');
 const { NlpManager } = require('node-nlp');
-const mysql = require('mysql');
 const sw = require('stopword');
+const bot = require('../bot');
 
+const db = bot.db;
 const threshold = 0.25;
 const trainedModel = '/model.nlp';
-
-let connection = mysql.createConnection({
-    host     : process.env.DB_HOST,
-    port     : process.env.DB_PORT || 3306,
-    user     : process.env.DB_USER,
-    password : process.env.DB_PW,
-    database : process.env.DB_NAME
-});
 
 const answers = {
     DATE : '{description} is {sdate}',
@@ -27,7 +19,7 @@ const questionType = {
 
 let manager;
 
-module.exports = async function NaturalAnswerHandleWhenr(input, nlpManager) {
+module.exports = async function NaturalAnswerHandler(input, nlpManager) {
     manager = nlpManager;
 
     let result = await processInput(input);
@@ -86,7 +78,7 @@ function queryDate(intent) {
         let q = `SELECT * FROM important_dates i WHERE i.year = '${year}' 
                                   AND i.semester = '${semesterCode}' 
                                   AND i.key = '${intent}' AND i.active = true`;
-        connection.query(q, function (err, results, fields) {
+        db.query(q, function (err, results, fields) {
             if (err) {
                 return reject(err);
             }

@@ -8,10 +8,30 @@ html(lang="en")
         .container
             .columns
                 .column.is-6
+                    h1.title Course Information
+            .columns
+                .column.is-6
+                    form(action='/uploadCourses', enctype='multipart/form-data', method='post')
+                        .field
+                            .file.has-name
+                                label.file-label
+                                    input.file-input(type='file' name='course_upload', id='course_upload', accept='.csv')
+                                    span.file-cta
+                                        span.file-icon
+                                            i.fas.fa-upload
+                                        span.file-label
+                                            | Choose a file&mldr;
+                                    span.file-name#course_file_name
+                                        |
+                        .field
+                            input.button.is-primary(type='submit', value='Upload')
+        .container
+            .columns
+                .column.is-6
                     h1.title Important Dates
             .columns
                 .column.is-6
-                    form(action='/upload', enctype='multipart/form-data', method='post')
+                    form(action='/uploadDates', enctype='multipart/form-data', method='post')
                         .field
                             .file.has-name
                                 label.file-label
@@ -25,7 +45,26 @@ html(lang="en")
                                         |
                         .field
                             input.button.is-primary(type='submit', value='Upload')
-
+        .container
+            .columns
+                .column.is-6
+                    h1.title Add FAQs
+            .columns
+                .column.is-6
+                    form(action='/uploadFAQs', enctype='multipart/form-data', method='post')
+                        .field
+                            .file.has-name
+                                label.file-label
+                                    input.file-input(type='file' name='faq_upload', id='faq_upload', accept='.csv')
+                                    span.file-cta
+                                        span.file-icon
+                                            i.fas.fa-upload
+                                        span.file-label
+                                            | Choose a file&mldr;
+                                    span.file-name#faq_file_name
+                                        |
+                        .field
+                            input.button.is-primary(type='submit', value='Upload')
 
 
 //include includes/footer

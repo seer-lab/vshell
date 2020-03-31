@@ -63,8 +63,6 @@ function buildDateQs(d) {
         qs.push(['en', "When  " + exams, key]);
     }
     
-    
-    
     return qs;
 }
 

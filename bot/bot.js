@@ -8,7 +8,6 @@ const { Botkit } = require('botkit');
 const { BotkitCMSHelper } = require('botkit-plugin-cms');
 
 // Import a platform-specific adapter for slack.
-
 const { SlackAdapter, SlackMessageTypeMiddleware, SlackEventMiddleware } = require('botbuilder-adapter-slack');
 
 // Import NlpManager
@@ -17,15 +16,23 @@ const { NlpManager } = require('node-nlp');
 // Load process.env values from .env file
 require('dotenv').config();
 
+// database connection
+const mysql = require('mysql');
+const db = mysql.createConnection({
+    host     : process.env.DB_HOST,
+    port     : process.env.DB_PORT || 3306,
+    user     : process.env.DB_USER,
+    password : process.env.DB_PW,
+    database : process.env.DB_NAME
+});
+
 const manager = new NlpManager({languages: ['en'], nlu: {log: false}});
 const trainnlp = require('./handlers/train');
-
-let storage = null;
 
 
 const adapter = new SlackAdapter({
     // parameters used to secure webhook endpoint
-    verificationToken: process.env.verificationToken,
+    // verificationToken: process.env.verificationToken,
     clientSigningSecret: process.env.clientSigningSecret,  
 
     // auth token for a single-team app
@@ -63,7 +70,7 @@ if (process.env.cms_uri) {
     }));
 }
 /* trainer for NLP */
-trainnlp(manager);
+trainnlp(manager, db);
 
 // Once the bot has booted up its internal services, you can use them to do stuff.
 controller.ready(() => {
@@ -150,4 +157,6 @@ async function getBotUserByTeam(teamId) {
     }
 }
 
+// exports
 exports.manager = manager;
+exports.db = db;

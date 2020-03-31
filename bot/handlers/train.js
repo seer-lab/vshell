@@ -1,30 +1,22 @@
-const dateformat = require('dateformat');
-const fs = require('fs');
-const mysql = require('mysql');
 const sw = require('stopword');
+
 const aBuild = require('./answerBuilder');
 const qBuild = require('./questionBuilder');
-const { NlpManager } = require('node-nlp');
 
-
-let connection = mysql.createConnection({
-    host     : process.env.DB_HOST,
-    port     : process.env.DB_PORT || 3306,
-    user     : process.env.DB_USER,
-    password : process.env.DB_PW,
-    database : process.env.DB_NAME
-});
-
+let db = null;
 let faqs = [];
 let courses = [];
 let dates = [];
 
-module.exports = async function trainnlp(manager) {
+module.exports = async function trainnlp(manager, dataSource) {
     // if (fs.existsSync('./model.nlp')) {
     //     manager.load('./model.nlp');
     // }
+    if (db == null) {
+        db = dataSource;
+    }
 
-    connection.connect();
+    db.connect();
     faqs = await getFAQs();
     //course code regex
     //[A-Z]{3,4}\s?[1-6]{1}[0-9]{3}[U|G]
@@ -32,7 +24,6 @@ module.exports = async function trainnlp(manager) {
     dates = await loadImportantDates();
 
     faqs.forEach(f => {
-
         let key = f.key;
         let tokens = sw.removeStopwords(f.question.split(' ')).join(' ');
         manager.addDocument('en', f.question, key);
@@ -75,7 +66,7 @@ module.exports = async function trainnlp(manager) {
 
 function getFAQs() {
     return new Promise(function(resolve, reject) {
-        connection.query('SELECT * FROM `faq`', function (err, results, fields) {
+        db.query('SELECT * FROM `faq`', function (err, results, fields) {
             if (err) {
                 return reject(err);
             }
@@ -87,7 +78,7 @@ function getFAQs() {
 function loadImportantDates() {
     return new Promise(function(resolve, reject) {
         let q = 'SELECT * FROM important_dates i where i.active = true';
-        connection.query(q, function (err, results, fields) {
+        db.query(q, function (err, results, fields) {
             if (err) {
                 return reject(err);
             }
@@ -100,7 +91,7 @@ function courseInfo() {
     return new Promise(function(resolve, reject) {
         let q = "SELECT c.* FROM course_info c where active = true";
 
-        connection.query(q, function (err, results, fields) {
+        db.query(q, function (err, results, fields) {
             if (err) {
                 return reject(err);
             }
@@ -116,7 +107,7 @@ function coursePrereqs(coursecode) {
             " INNER JOIN course_prerequisite p " +
             " ON c.course_code = p.prereq_id AND p.course_id = '" + coursecode + "'";
 
-        connection.query(q, function (err, results, fields) {
+        db.query(q, function (err, results, fields) {
             if (err) {
                 return reject(err);
             }
@@ -130,7 +121,7 @@ function findCoursesByPrereq(coursecode) {
         let q = "select c.course_code, c.course_name  from course_info c " +
             "        INNER JOIN  course_prerequisite p ON c.course_code = p.course_id AND p.prereq_id = '" + coursecode + "'";
 
-        connection.query(q, function (err, results, fields) {
+        db.query(q, function (err, results, fields) {
             if (err) {
                 return reject(err);
             }
