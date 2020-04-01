@@ -4,7 +4,7 @@ const sw = require('stopword');
 const bot = require('../bot');
 
 const db = bot.db;
-const threshold = 0.25;
+const threshold = 0.5;
 const trainedModel = '/model.nlp';
 
 const answers = {
