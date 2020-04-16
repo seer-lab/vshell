@@ -17,13 +17,14 @@ DB_PW         | Database password                                               
 ## Bot Environment
 File: `bot\.env`
 
-Property      | Description            |
---------------| -----------------------|
-clientId      | Slack Bot clientId     |
-clientSecret  | Slack Bot clientSecret |
-redirectUri   | Slack security config  |
-DB_HOST       | Database server        |
-DB_PORT       | Database server port   |
-DB_NAME       | Database schema name   |
-DB_USER       | Database username      |
-DB_PW         | Database password      |
+Property            | Description                                |
+--------------------| -------------------------------------------|
+clientId            | Slack Bot clientId                         |
+clientSecret        | Slack Bot clientSecret                     |
+redirectUri         | Redirect URI for Slack bot endpoint URL    |
+verificationToken   | Slack Bot verification token               |
+DB_HOST             | Database server                            |
+DB_PORT             | Database server port                       |
+DB_NAME             | Database schema name                       |
+DB_USER             | Database username                          |
+DB_PW               | Database password                          |
