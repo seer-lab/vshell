@@ -2,6 +2,7 @@
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const figlet = require("figlet");
+const mysql = require('mysql');
 
 
 require('dotenv').config();
@@ -15,6 +16,13 @@ const NaturalAnswerHandler = require('../handlers/naturalAnswer');
 //const classifier = new BayesNLU({ language: 'en' });
 
 const trainnlp = require('../handlers/train');
+const db = mysql.createConnection({
+    host     : process.env.DB_HOST,
+    port     : process.env.DB_PORT || 3306,
+    user     : process.env.DB_USER,
+    password : process.env.DB_PW,
+    database : process.env.DB_NAME
+});
 
 //const threshold = 0.25;
 
@@ -34,7 +42,7 @@ const init = async () => {
     debug("DEBUG MODE ENABLED");
 
     //await trainnlp(testManager, classifier);
-    trainnlp(testManager);
+    trainnlp(testManager, db);
     await run();
 };
 

@@ -9,9 +9,10 @@ let courses = [];
 let dates = [];
 
 module.exports = async function trainnlp(manager, dataSource) {
-    // if (fs.existsSync('./model.nlp')) {
-    //     manager.load('./model.nlp');
-    // }
+    if (fs.existsSync('./model.nlp')) {
+        manager.load('./model.nlp');
+    }
+
     if (db == null) {
         db = dataSource;
     }

@@ -31,7 +31,7 @@ module.exports = async function NaturalAnswerHandler(input, nlpManager) {
         case questionType.DATE:
             let results = await queryDate(intent);
             if (results && results.length > 0) {
-                answer = getDateAnswer(results[0]);
+                answer = await getDateAnswer(results[0]);
             }
             break;
         default:
@@ -72,7 +72,7 @@ function queryDate(intent) {
     let year = df(today, 'yyyy');
     let month = parseInt(df(today, 'mm'));
 
-    let semesterCode = month < 4 ? 'w' : month < 9 ? 's' : 'f';
+    let semesterCode = month < 5 ? 'w' : month < 9 ? 's' : 'f';
 
     return new Promise(function(resolve, reject) {
         let q = `SELECT * FROM important_dates i WHERE i.year = '${year}' 
